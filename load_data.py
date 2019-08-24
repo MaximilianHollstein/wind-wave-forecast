@@ -2,21 +2,21 @@ import bz2
 import os
 import time
 import urllib
-
+import urllib.request
 import requests
 
 
 ########################################################################
 
-# This module contains functions that allow one to download and access
-# the most recent WAM data provided by the DWD (https://www.dwd.de/,
-# https://opendata.dwd.de).
+# This module contains functions that are desigend to specifically  download and access
+# (WAM) data provided by the DWD (https://www.dwd.de/, https://opendata.dwd.de).
 
 ########################################################################
 
 # function for downloading data from remote directory
-def load_data(remote_data_directory, local_data_directory, filename_extension, limit=-1, number_of_request_trials=5):
-    
+def load_data(remote_data_directory, local_data_directory, filename_extension, \
+    limit=-1, number_of_request_trials=5,verbose=True):
+
     # create directory in which the downloaded data will be stored
     if not os.path.exists(local_data_directory):
         os.makedirs(local_data_directory)
@@ -27,8 +27,7 @@ def load_data(remote_data_directory, local_data_directory, filename_extension, l
     success = 0
     list_of_files = []
     while success == 0:
-    	number_of_request_trials = number_of_request_trials + 1
-
+        number_of_request_trials = number_of_request_trials + 1
         try:
             r = requests.get(remote_data_directory)
             for l in r.text.split('\n'):
@@ -39,36 +38,43 @@ def load_data(remote_data_directory, local_data_directory, filename_extension, l
                     if limit > -1:
                         list_of_files = list_of_files[0:limit]
             success = 1
+        except Exception as e:
+            print(e)
 
-        except Exception, e:
-        	if number_of_request_trials <= number_of_request_trials
+            if number_of_request_trials <= number_of_request_trials:
 
-        	    # if the server is not responsive, retry request in 5 minutes
-            	print('wait 5 minutes...')
-            	time.sleep(300)  
+                # if the server is not responsive, retry request in 5 minutes
+                print('wait 5 minutes...')
+                time.sleep(300)  
             else:
-            	print('')
-            	success = -1
+                print('')
+                success = -1
 
-    if success > 0
-    	# download available files
-    	while len(list_of_files) > 0:
-        	# get file
-        	local_file = local_data_directory + '/' + list_of_files[-1]
-        	try:
-            	urllib.urlretrieve(os.path.join(remote_data_directory, list_of_files[-1]),
-                               local_file)
-        	except Exception, e:
+    if success > 0:
+        # download available files
+        while len(list_of_files) > 0:
+            # get file
+            local_file = local_data_directory + '/' + list_of_files[-1]
+            try:
+                if verbose:
+                    print("try to download:")
+                    print(os.path.join(remote_data_directory, list_of_files[-1]))
+                    print("")
 
-        	if os.path.isfile(local_file):
-            	list_of_files = [list_of_files[i] for i \
+                urllib.request.urlretrieve(os.path.join(remote_data_directory, \
+                    list_of_files[-1]),local_file)
+            except Exception as e:
+                print(e)
+
+            if os.path.isfile(local_file):
+                 list_of_files = [list_of_files[i] for i \
                              in range(len(list_of_files) - 1)]
-        	else:
-            	print('wait 5 minutes...')
-            	time.sleep(300)
+            else:
+                print('wait 5 minutes...')
+                time.sleep(300)
 
 
-# This function decompresses the files in the directory
+# This function decompresses  files in a specified directory
 # 'localDataDirectory'.
 
 def decompress_data(local_data_directory):
