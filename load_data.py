@@ -51,6 +51,7 @@ def load_data(remote_data_directory, local_data_directory, filename_extension, \
                 success = -1
 
     if success > 0:
+
         # download available files
         while len(list_of_files) > 0:
             # get file
@@ -73,15 +74,13 @@ def load_data(remote_data_directory, local_data_directory, filename_extension, \
                 print('wait 5 minutes...')
                 time.sleep(300)
 
-
 # This function decompresses  files in a specified directory
 # 'localDataDirectory'.
 
-def decompress_data(local_data_directory):
+def decompress_data(local_data_directory,target_directory):
     # create directory in which the data files will be stored
-    local_data_directory_unzipped = local_data_directory + '/unzipped_data'
-    if not os.path.exists(local_data_directory_unzipped):
-        os.makedirs(local_data_directory_unzipped)
+    if not os.path.exists(target_directory):
+        os.makedirs(target_directory)
 
     # decompress files
     local_files = [f for f in os.listdir(local_data_directory)
@@ -93,7 +92,7 @@ def decompress_data(local_data_directory):
         uncompressed_f = bz2.decompress(fi)
 
         # save decompressed file
-        file = open(local_data_directory_unzipped + '/'
+        file = open(target_directory + '/'
                     + f.split('.')[-3] + '.grib2', 'wb')
         file.write(uncompressed_f)
         file.close()
